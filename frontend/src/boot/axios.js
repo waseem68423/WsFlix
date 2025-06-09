@@ -1,37 +1,36 @@
 import { boot } from 'quasar/wrappers';
 import axios from 'axios';
-import { store } from '../store/store'; // Import our global store
+import { store } from '../store/store';
 
-// Create the Axios instance pointing to our backend
-const api = axios.create({ baseURL: 'http://localhost:3000' });
+// This line reads the VITE_API_URL from your Vercel environment variables.
+// If it can't find it (like when you are running on your own computer),
+// it will use 'http://localhost:3000' as a backup.
+const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
-// --- THIS IS THE MOST IMPORTANT FIX ---
-// This "interceptor" runs before every single request is sent.
+// This will print the URL to the browser's console, so we can check if it's correct.
+console.log('Using API Base URL:', baseURL);
+
+const api = axios.create({ baseURL: baseURL });
+
 api.interceptors.request.use(
   (config) => {
-    // Get the token from our store
     const token = store.token;
-
-    // If a token exists, add it to the request headers
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
-      console.log('Token attached to request headers.'); // For debugging
     } else {
-      console.log('No token found, sending request without auth.'); // For debugging
+      // This is the console log you were seeing before
+      console.log('No token found, sending request without auth.');
     }
-    
     return config;
   },
   (error) => {
-    // This part is for request errors (like no internet)
     return Promise.reject(error);
   }
 );
-// --- END OF FIX ---
 
 export default boot(({ app }) => {
-  // Make '$api' available throughout the app as this.$api
   app.config.globalProperties.$api = api;
+  app.config.globalproperties.$store = store;
 });
 
 export { api };
