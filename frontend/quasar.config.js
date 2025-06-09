@@ -5,7 +5,11 @@
  * a subset of ES6 such as arrow functions, chosen features from ES6...
  */
 
-const { configure } = require('quasar/wrappers');
+// --- THIS IS THE FIX ---
+// Changed from 'require' to 'import' to fix Vercel build error
+import { configure } from 'quasar/wrappers';
+// --- END OF FIX ---
+
 
 module.exports = configure(function (/* ctx */) {
   return {
@@ -88,12 +92,10 @@ module.exports = configure(function (/* ctx */) {
       // components: [],
       // directives: [],
 
-      // --- THIS IS THE FIX ---
       // Quasar plugins
       plugins: [
-        'Notify' // Explicitly include the Notify plugin
+        'Notify'
       ]
-      // --- END OF FIX ---
     },
 
     // animations: 'all', // --- includes all animations
